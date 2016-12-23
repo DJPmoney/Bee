@@ -10,6 +10,7 @@ import pandas as pd
 #import numpy as nm
 import os.path
 import pyalgo_redK
+import progressbar
 
 stockdata_manager = {}
 
@@ -238,8 +239,9 @@ def accessHistoryStockWithCsv(stock_id):
 def accessAllHistoryStock():
     company = getCompanyList()
     flag_update = checkCsvUpdate()
-    for i in range(len(company)):
-        print (str(i) + "/" + str(len(company)))
+    bar = progressbar.ProgressBar()
+    for i in bar(range(len(company))):
+        #print (str(i) + "/" + str(len(company)))
         stock_id = company[i]['Number']
         if (flag_update == 1):
             stock = accessHistoryStockWithWeb(stock_id)
@@ -318,14 +320,15 @@ if __name__ == "__main__":
     choice_stock = {}
     cur_date = date.today().strftime('%Y/%m/%d')
     i = 0
-    for  stock_id in stockdata_manager:
-        print (str(i) + "##" + str(len(stockdata_manager)))
+    bar = progressbar.ProgressBar()
+    for  stock_id in bar(stockdata_manager):
+        #print (str(i) + "##" + str(len(stockdata_manager)))
         i+=1
         ret = caculateStockChoice(stock_id, cur_date)
         if ret == 1:
             choice_stock[stock_id] = stockdata_manager[stock_id]
     
-    finished_time = time.time()
+    finished_time = time.time() 
     print("----> total spend:" + str(finished_time-begin_time))
     print ("Choice Size:" + str(len(choice_stock)))
     print (choice_stock.keys())

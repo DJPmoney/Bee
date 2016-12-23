@@ -1,3 +1,9 @@
+git clone https://github.com/DJPmoney/Bee.git
+git add 
+git commit
+git push -u origin master
+
+
 'date' - 日期
 'opening_price' - 開盤價格
 'highest_price' - 最高價格
