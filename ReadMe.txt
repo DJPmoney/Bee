@@ -1,17 +1,25 @@
+1.
 git clone https://github.com/DJPmoney/Bee.git
 git add 
 git commit
 git push -u origin master
 
+2. columm meanings
+date - æ—¥æœŸ
+opening_price - é–‹ç›¤åƒ¹æ ¼
+highest_price - æœ€é«˜åƒ¹æ ¼
+lowest_price- æœ€ä½Žåƒ¹æ ¼
+finial_price- æ”¶ç›¤åƒ¹æ ¼
+quantity - äº¤æ˜“æ•¸é‡
+short_buy - èžè³‡
+short_sell - èžå·
+foreign_investment - å¤–è³‡ç¸½å¼µæ•¸
+legal_person - æ³•äººç¸½å¼µæ•¸
+self_employed - è‡ªç‡Ÿå•†ç¸½å¼µæ•¸
+avg_five -  5æ—¥ç·š
+avg_ten - 10æ—¥ç·šåƒ¹æ ¼
+avg_twenty - 20æ—¥ç·šåƒ¹æ ¼
+avg_sixty - 60æ—¥ç·šåƒ¹æ ¼
+avg_hundred_twenty - 120æ—¥ç·šåƒ¹æ ¼
 
-'date' - ¤é´Á
-'opening_price' - ¶}½L»ù®æ
-'highest_price' - ³Ì°ª»ù®æ
-'lowest_price'- ³Ì§C»ù®æ
-'finial_price'- ¦¬½L»ù®æ
-'quantity' - ¥æ©ö¼Æ¶q
-avg_five -  ¤­¤é½u
-avg_ten - 10¤é½u»ù®æ
-avg_twenty - 20¤é½u»ù®æ
-avg_sixty - 60¤é½u»ù®æ
-avg_hundred_twenty - 120¤é½u»ù®æ
+3. history_stock git --> https://github.com/doylehuang/history_stock.git
