@@ -9,6 +9,7 @@ from datetime import date
 import pandas as pd
 #import numpy as nm
 import os.path
+from pathlib import Path
 import pyalgo_redK
 import progressbar
 
@@ -308,8 +309,14 @@ def caculateStockChoice(stock_id,  date):
                    stockdata_manager[stock_id].getStockPandas(),  date) ==0:
         return 0
     return 1
-    
+
+def checkHistoryStock():
+    if os.path.isdir(System.STOCK_DATA_FOLDER) == False:
+       path = Path(System.System.STOCK_DATA_FOLDER) 
+       path.mkdir(parents=True)
+
 def initBroseWeb():
+    checkHistoryStock()
     stockdata_manager = accessAllHistoryStock()
     return stockdata_manager
     
