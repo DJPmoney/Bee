@@ -21,6 +21,8 @@ def caculate_reqK_quantity_price(stock_id,  stock_data,  stock_pandas,  d_date):
     for i in range(e_idx,  s_idx,  -1):
         d_idx = getDateIndex(stock_data, ( datetime.strptime(stock_data[i]['date'], "%Y/%m/%d")-timedelta(days=System.RED_K_DURING)) .strftime('%Y/%m/%d'))
         mean_quan = stock_pandas['quantity'][i:d_idx].mean()
+        if mean_quan < System.RED_K_MIN_AVG_QUANTITY:
+            continue
         mean_price = stock_pandas['finial_price'][i:d_idx].mean()
         quan = float(stock_data[i]['quantity'])
         if quan == 0:
