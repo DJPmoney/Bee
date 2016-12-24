@@ -1,8 +1,17 @@
 1.
+(1)
 git clone https://github.com/DJPmoney/Bee.git
 git add 
 git commit
 git push -u origin master
+(2)安裝套件:
+python -m pip install --upgrade pip
+pip install pandas
+pip install requests
+pip install progressbar2
+(3)Eric 6 安裝套件:
+pip install PyQt5
+pip install QScintilla
 
 2. columm meanings
 date - 日期
