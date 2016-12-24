@@ -12,6 +12,15 @@ pip install progressbar2
 (3)Eric 6 安裝套件:
 pip install PyQt5
 pip install QScintilla
+(4)清除 local workspace 
+git clean -dxf
+git checkout -f
+(5)sync tip code:
+git fetch
+git pull
+(6) git add ignore
+git add -A -f --ignore-errors 
+
 
 2. columm meanings
 date - 日期
