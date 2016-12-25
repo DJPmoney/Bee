@@ -2,6 +2,7 @@
 COMPANY_LIST_FILE = './data/stock_company.csv'
 HISTORY_STOCK_WEB = 'http://jsjustweb.jihsun.com.tw/Z/ZC/ZCW/czkc1.djbcd?a=%s&b=D&c=2880&E=1&ver=5'
 STOCK_DATA_FOLDER = './data/history_stock/'
+HISTORY_MARKET_WEB = 'http://jdata.yuanta.com.tw/Z/ZB/ZBH/CZKC0.djbcd?a=EB09999&b=D&C=1440' #http://www.yuanta.com.tw/pages/content/Frame.aspx?Node=3a7d6a6e-9346-4448-9ff9-75c1cb5841d3
 
 DURING_NEAR_AVG = 30
 DURING_QUANTITY = 20
@@ -18,3 +19,7 @@ RED_K_QUANTITY_PERCENT = 0.6
 RED_K_PRICE_PERCENT = 0.65
 RED_K_CROSS_PERCENT = 0.1
 RED_K_MIN_AVG_QUANTITY = 100
+
+ENABLE_MARKET_TREND = 1
+MARKET_MIN_TREND_LIMIT = 0.0
+MARKET_STOCK_TRENT_PERCENT = 0.05

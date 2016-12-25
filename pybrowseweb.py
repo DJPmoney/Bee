@@ -13,9 +13,12 @@ import progressbar
 import StockConfig as System
 import pyalgo_redK
 import pycompany_info
+import pymarket_info
 
 stockdata_manager = {}
 companyinfo_manager = {}
+market_manager = None
+g_flag_market_trend = 1
 
 class StockData:
     def __init__(self,  stock_id):
@@ -296,7 +299,21 @@ def calculateStockQuantity(stock_id,  date,  during):
     start = getDateIndex(stock_id,  date)
     end = start + during
     return checkQuantity(stockdata_manager[stock_id].calculateQuantity(start,  end))
-    
+
+def calculateMarkPriceTrend(stock_id,  cdate):
+    if System.ENABLE_MARKET_TREND == 0:
+        return 1
+    if g_flag_market_trend == 0:
+        return 0
+    stock = stockdata_manager[stock_id].getStockData()
+    start = getDateIndex(stock_id,  cdate)
+    p = float(stock[start]['finial_price'])
+    t = float(stock[start+1]['finial_price'])
+    diff = p -t
+    if (diff < 0):
+        return (abs(diff) < System.MARKET_STOCK_TRENT_PERCENT)
+    return 1
+
 def caculateStockChoice(stock_id,  date):
     if validate(date) == False:
         return 0
@@ -311,6 +328,8 @@ def caculateStockChoice(stock_id,  date):
         return 0
     if pycompany_info.caculateCompanyRevenue(companyinfo_manager,  stock_id,  date) == 0:
         return 0
+    if calculateMarkPriceTrend(stock_id,  date)  == 0:
+        return 0
     return 1
 
 def checkHistoryStock():
@@ -321,6 +340,7 @@ def checkHistoryStock():
 def initBroseWeb():
     checkHistoryStock()
     pycompany_info.checkHistoryStock()
+    market_manager = pymarket_info.accessMarketWithWeb()
     stockdata_manager = accessAllHistoryStock()
     return [stockdata_manager, companyinfo_manager]
     
@@ -330,6 +350,7 @@ if __name__ == "__main__":
     initBroseWeb()
     choice_stock = {}
     cur_date = date.today().strftime('%Y/%m/%d')
+    g_flag_market_trend = pymarket_info.caculateMarketTrend(market_manager,  cur_date)
     i = 0
     bar = progressbar.ProgressBar()
     for  stock_id in bar(stockdata_manager):
