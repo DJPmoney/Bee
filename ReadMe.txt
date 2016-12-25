@@ -22,7 +22,7 @@ git pull
 git add -A -f --ignore-errors 
 
 
-2. columm meanings
+2. Stock Data columm meanings
 date - 日期
 opening_price - 開盤價格
 highest_price - 最高價格
@@ -40,4 +40,12 @@ avg_twenty - 20日線價格
 avg_sixty - 60日線價格
 avg_hundred_twenty - 120日線價格
 
-3. history_stock git --> https://github.com/doylehuang/history_stock.git
+3. Company Revenue columm meanings:
+date - 日期
+revenue - 當月營收
+last_month_revenue_percent - 上月比較%
+last_year_revenue - 去年同月營收
+last_year_revenue_percent - 去年同月增減%
+accumulat_revenue - 當月累計營收
+last_year_accumulat_revenue - 去年累計營收
+revenue_percent - 前期比較%
