@@ -1,8 +1,6 @@
 import time
 import requests
 import csv
-#import config.StockConfig as System
-import StockConfig as System
 from datetime import datetime
 from datetime import timedelta
 from datetime import date
@@ -10,10 +8,14 @@ import pandas as pd
 #import numpy as nm
 import os.path
 from pathlib import Path
-import pyalgo_redK
 import progressbar
 
+import StockConfig as System
+import pyalgo_redK
+import pycompany_info
+
 stockdata_manager = {}
+companyinfo_manager = {}
 
 class StockData:
     def __init__(self,  stock_id):
@@ -242,7 +244,6 @@ def accessAllHistoryStock():
     flag_update = checkCsvUpdate()
     bar = progressbar.ProgressBar()
     for i in bar(range(len(company))):
-        #print (str(i) + "/" + str(len(company)))
         stock_id = company[i]['Number']
         if (flag_update == 1):
             stock = accessHistoryStockWithWeb(stock_id)
@@ -250,10 +251,10 @@ def accessAllHistoryStock():
             stock = accessHistoryStockWithCsv(stock_id)
         if stock != None:
             stockdata_manager[stock_id] = stock
-        #if (stockdata_manager[stock_id] != None):
-        #   stockdata_manager[stock_id].printMsg()
-        #if i > 5:
-        #break
+        #init customer info
+        d = pycompany_info.accesssCompanyInfo(stock_id)
+        if d != None:
+            companyinfo_manager[stock_id]  = d
     if (flag_update == 1):
         writeCsvUpdate()
     return stockdata_manager
@@ -312,12 +313,14 @@ def caculateStockChoice(stock_id,  date):
 
 def checkHistoryStock():
     if os.path.isdir(System.STOCK_DATA_FOLDER) == False:
-       path = Path(System.System.STOCK_DATA_FOLDER) 
+       path = Path(System.STOCK_DATA_FOLDER) 
        path.mkdir(parents=True)
 
 def initBroseWeb():
     checkHistoryStock()
+    pycompany_info.checkHistoryStock()
     stockdata_manager = accessAllHistoryStock()
+    print (companyinfo_manager)
     return stockdata_manager
     
 if __name__ == "__main__":
@@ -339,6 +342,4 @@ if __name__ == "__main__":
     print("----> total spend:" + str(finished_time-begin_time))
     print ("Choice Size:" + str(len(choice_stock)))
     print (choice_stock.keys())
-
-#if __name__ == "__main__":
- #   initBroseWeb()
+    
