@@ -320,8 +320,7 @@ def initBroseWeb():
     checkHistoryStock()
     pycompany_info.checkHistoryStock()
     stockdata_manager = accessAllHistoryStock()
-    print (companyinfo_manager)
-    return stockdata_manager
+    return [stockdata_manager, companyinfo_manager]
     
 if __name__ == "__main__":
     begin_time = time.time()

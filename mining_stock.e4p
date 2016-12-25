@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric project file for project mining_stock -->
-<!-- Saved: 2016-12-24, 00:52:55 -->
+<!-- Saved: 2016-12-25, 20:16:10 -->
 <!-- Copyright (C) 2016 doyle,  -->
 <Project version="5.1">
   <Language>en_US</Language>
@@ -14,11 +14,13 @@
   <Eol index="0"/>
   <Sources>
     <Source>SimNearAvgConfig.py</Source>
+    <Source>StockCompanyConfig.py</Source>
     <Source>StockConfig.py</Source>
     <Source>config/SimNearAvgConfig.py</Source>
     <Source>config/StockConfig.py</Source>
     <Source>pyalgo_redK.py</Source>
     <Source>pybrowseweb.py</Source>
+    <Source>pycompany_info.py</Source>
     <Source>pysimulate_nearavg.py</Source>
   </Sources>
   <Forms/>

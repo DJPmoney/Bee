@@ -51,17 +51,18 @@ class CompanyInfo(CompanyRevenue):
         try:
             with open(file_name,  "r") as f :
                 for line in f:
+                    line = line.rstrip('\n')
                     if line.find(self.stock_id ) >= 0:
                         s_date = datetime.strptime(line.split(":")[1], '%Y/%m')
                         c_date = datetime.strptime(date.today().strftime('%Y/%m/01'),  "%Y/%m/%d")
                         c_date = c_date - timedelta(days=20)
                         c_date = datetime.strptime(c_date.strftime('%Y/%m'),  "%Y/%m")
-                        if (s_date >= c_date):
+                        if (s_date > c_date):
                             return 1
                         return 0
         except:
             return 1
-        return 1
+        return 2
         
     def writeRevenueCSV(self):
         if len(self.revenue) == 0:
@@ -126,13 +127,16 @@ def checkHistoryStock():
 
 def accesssCompanyInfo(stock_id):
     info = CompanyInfo(stock_id)
-    if info.checkCsvUpdate() == 1:
+    ret = info.checkCsvUpdate()
+    if ret == 1:
          if accessCompanyRevenue(stock_id,  info) ==0:
              return None
          info.writeRevenueCSV()
-    else:
+    elif ret == 0:
         if info.readRevenueCSV()  == 0:
             return None
+    else:
+        return None
     return info
     
 
