@@ -309,6 +309,8 @@ def caculateStockChoice(stock_id,  date):
     if pyalgo_redK.caculate_redK_mointor(stock_id,  stockdata_manager[stock_id].getStockData(),  
                    stockdata_manager[stock_id].getStockPandas(),  date) ==0:
         return 0
+    if pycompany_info.caculateCompanyRevenue(companyinfo_manager,  stock_id,  date) == 0:
+        return 0
     return 1
 
 def checkHistoryStock():

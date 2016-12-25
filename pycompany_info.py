@@ -27,7 +27,7 @@ class CompanyRevenue:
         data['last_year_accumulat_revenue'] = int(item[5].replace(",", ""))
         data['revenue_percent'] = float(item[6].replace(",", ""))
         self.revenue.append(data)
-    
+        
     def getItem_Revenue(self):
         return self.revenue
         
@@ -82,6 +82,68 @@ class CompanyInfo(CompanyRevenue):
                self.revenue.append(row)
         return 1
 
+
+def findDateIndex(revenue,  cdate):
+    if revenue == None or len(revenue) == 0:
+        return -1
+    pdate = datetime.strptime(cdate,  "%Y/%m/%d")
+    s = str(pdate.year) + "/" + str(pdate.month)
+    kdate = datetime.strptime(s,  "%Y/%m")
+    for i in range(len(revenue)):
+        sdate = datetime.strptime(revenue[i]['date'],  "%Y/%m")
+        if kdate == sdate:
+            return i
+        elif i == 0 and kdate>sdate:
+            return 0
+    return -1
+
+def caculateLastMonthGrowth(stock_id,  company_info,  date_idx):
+    if SysConfig.REVENUE_LAST_MONTH_GROWTH_ENABLE ==0:
+        return 1
+    d = float(company_info.getItem_Revenue()[date_idx]['last_month_revenue_percent'])
+    return ( d >= SysConfig.REVENUE_LAST_MONTH__GROTH_PERCENT)
+    
+def caculateContinousMonthGrowth(stock_id,  company_info,  date_idx):
+    if SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH <=0:
+        return 1
+    revenue = company_info.getItem_Revenue()
+    s_idx = date_idx
+    e_idx = s_idx + SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH
+    for i in range(s_idx,  e_idx):
+        if float(revenue[i]['last_year_revenue_percent']) < SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH_PERCENT:
+            return 0
+    return 1
+    
+def caculateContinousGrowth(stock_id,  company_info,  date_idx):
+    if SysConfig.REVENUE_CONTINOUS_RECENT_GROTH <=0:
+        return 1
+    revenue = company_info.getItem_Revenue()
+    s_idx = date_idx
+    e_idx = s_idx + SysConfig.REVENUE_CONTINOUS_RECENT_GROTH
+    for i in range(s_idx,  e_idx):
+        if float(revenue[i]['last_month_revenue_percent']) < SysConfig.REVENUE_CONTINOUS_RECENT_GROTH_PERCENT:
+            return 0
+    return 1
+
+def caculateCompanyRevenue(companyinfo_manager,  stock_id,  cdate):
+    if stock_id not in companyinfo_manager:
+        return 1
+        
+    company_info = companyinfo_manager[stock_id]
+    if len(company_info.getItem_Revenue()) == 0:
+        return 1
+    date_idx = findDateIndex(company_info.getItem_Revenue(),  cdate)
+    if  date_idx< 0:
+        return 1
+        
+    if caculateLastMonthGrowth(stock_id,  company_info,  date_idx) == 0:
+        return 0
+    if caculateContinousMonthGrowth(stock_id,  company_info,  date_idx) == 0:
+        return 0
+    if caculateContinousGrowth(stock_id,  company_info,  date_idx) == 0:
+        return 0
+        
+    return 1
 
 def accessCompanyRevenue(stock_id,  info):
     web_path = SysConfig.HISTORY_STOCK_WEB%stock_id
@@ -139,5 +201,15 @@ def accesssCompanyInfo(stock_id):
         return None
     return info
     
+if __name__ == "__main__":
+    stock_id = "6283"
+    company_info = accesssCompanyInfo("6283")
+    cdate = date.today().strftime('%Y/%m/%d')
+    
+    date_idx = findDateIndex(company_info.getItem_Revenue(),  cdate)
+    
+    caculateLastMonthGrowth(stock_id,  company_info,  date_idx)
+    caculateContinousMonthGrowth(stock_id,  company_info,  date_idx) 
+    caculateContinousGrowth(stock_id,  company_info,  date_idx) 
 
 
