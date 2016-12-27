@@ -20,8 +20,12 @@ git fetch
 git pull
 (6) git add ignore
 git add -A -f --ignore-errors 
-
-
+(7) git branch 操作:
+  -- 建立branch : git push origin master:[branch name]
+  -- 刪除branch : git push origin :[branch name]
+  -- merge branch : git merge [branch name]
+  -- 複製 branch 中特定commit 至  local 端: git cherry-pick  [commit id]
+  
 2. Stock Data columm meanings
 date - 日期
 opening_price - 開盤價格
