@@ -14,6 +14,8 @@ import StockConfig as System
 import pyalgo_redK
 import pycompany_info
 import pymarket_info
+import  pyscore
+import traceback
 
 stockdata_manager = {}
 companyinfo_manager = {}
@@ -125,7 +127,7 @@ class StockData:
     def listPandas(self):   
         self.stock_pandas = pd.DataFrame(self.stock_data)
 
-    def calculateNearAvg(self,  start,  end):
+    def calculateNearAvg(self,  start,  end,  score):
         during= end - start
         #print ("======calculateNearAvg: "+ self.stock_id)
         #print (str(start) + ":" + str(end))
@@ -133,6 +135,7 @@ class StockData:
         #print (diff)
         count_diff=(diff<=System.NEAR_AVG_DIFF_PERCENT).sum()
         #print (count_diff)
+        score.append(['calculateNearAvg',  float(count_diff)/during,  System.NEAR_AVG_GRAVITY_PERCENT,  None])
         if (float(count_diff)/(during)) >= System.NEAR_AVG_GRAVITY_PERCENT:
             #print ("======calculateNearAvg: True :" + str(float(count_diff)/(during)))
             return 1
@@ -269,13 +272,14 @@ def caculateStockNearAvg(stock_id,  date,  during):
         return 0
     if stockdata_manager[stock_id].getItemCount() <= 0:
         return 0
-    #print(stock_id)
-    #print(stockdata_manager[stock_id].getItem(0))
     start = getDateIndex(stock_id,  date)
     end = start + during
-    return stockdata_manager[stock_id].calculateNearAvg(start,  end)
+    score = []
+    ret = stockdata_manager[stock_id].calculateNearAvg(start,  end,  score)
+    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    return ret
 
-def checkQuantity(quan):
+def checkQuantity(quan,  score):
     if (quan == None):
         return 0
     sum_quan = 0
@@ -284,6 +288,7 @@ def checkQuantity(quan):
         sum_quan+=quan[i]['quan_value']
     if len(quan) > 0:
         avg_quan = float(sum_quan)/len(quan)
+    score.append(['checkQuantity',  avg_quan,  System.QUANTITY_TRANS_AVERAGE,  None])
     if (avg_quan <= System.QUANTITY_TRANS_AVERAGE):
         return 0
         
@@ -298,37 +303,53 @@ def calculateStockQuantity(stock_id,  date,  during):
         return 0
     start = getDateIndex(stock_id,  date)
     end = start + during
-    return checkQuantity(stockdata_manager[stock_id].calculateQuantity(start,  end))
+    score = []
+    ret = checkQuantity(stockdata_manager[stock_id].calculateQuantity(start,  end),  score)
+    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    return ret
 
 def calculateMarkPriceTrend(stock_id,  cdate):
-    if System.ENABLE_MARKET_TREND == 0:
-        return 1
-    if g_flag_market_trend == 0:
-        return 0
+    score = []
     stock = stockdata_manager[stock_id].getStockData()
     start = getDateIndex(stock_id,  cdate)
     p = float(stock[start]['finial_price'])
     t = float(stock[start+1]['finial_price'])
     diff = p -t
+    score.append(['calculateMarkPriceTrend#g_flag_market_trend', g_flag_market_trend, None, None])
+    score.append(['calculateMarkPriceTrend#diff', diff, None, None])
+    score.append(['calculateMarkPriceTrend#abs_diff', abs(diff), None, System.MARKET_STOCK_TRENT_PERCENT])
+    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    ret = 1
     if (diff < 0):
-        return (abs(diff) < System.MARKET_STOCK_TRENT_PERCENT)
-    return 1
+        ret = (abs(diff) < System.MARKET_STOCK_TRENT_PERCENT)
+    if System.ENABLE_MARKET_TREND == 0:
+        return 1
+    if g_flag_market_trend == 0:
+        return 0
+    return ret
 
 def caculateStockChoice(stock_id,  date):
     if validate(date) == False:
         return 0
     if stock_id  not in stockdata_manager:
         return 0
-    #if (caculateStockNearAvg(stock_id, date,  System.DURING_NEAR_AVG) == 0):
-    #    return 0
-    #if (calculateStockQuantity(stock_id, date,  System.DURING_QUANTITY) == 0):
-     #   return 0
+    flag_near = 1
+    flag_quan = 1
+    flag_red = 1
+    flag_revenue = 1
+    flag_market = 1
+    if (caculateStockNearAvg(stock_id, date,  System.DURING_NEAR_AVG) == 0):
+        flag_near = 0
+    if (calculateStockQuantity(stock_id, date,  System.DURING_QUANTITY) == 0):
+        flag_quan = 0
     if pyalgo_redK.caculate_redK_mointor(stock_id,  stockdata_manager[stock_id].getStockData(),  
                    stockdata_manager[stock_id].getStockPandas(),  date) ==0:
-        return 0
+        flag_red = 0
     if pycompany_info.caculateCompanyRevenue(companyinfo_manager,  stock_id,  date) == 0:
-        return 0
+        flag_revenue = 0
     if calculateMarkPriceTrend(stock_id,  date)  == 0:
+        flag_market = 0
+    if flag_red == 0 or flag_revenue == 0 or flag_market == 0:
         return 0
     return 1
 
@@ -338,6 +359,7 @@ def checkHistoryStock():
        path.mkdir(parents=True)
 
 def initBroseWeb():
+    pyscore.initScore()
     checkHistoryStock()
     pycompany_info.checkHistoryStock()
     market_manager = pymarket_info.accessMarketWithWeb()
@@ -346,7 +368,6 @@ def initBroseWeb():
     
 if __name__ == "__main__":
     begin_time = time.time()
-    
     initBroseWeb()
     choice_stock = {}
     cur_date = date.today().strftime('%Y/%m/%d')
@@ -360,6 +381,7 @@ if __name__ == "__main__":
         if ret == 1:
             choice_stock[stock_id] = stockdata_manager[stock_id]
     
+    pyscore.caculateScore()
     finished_time = time.time() 
     print("----> total spend:" + str(finished_time-begin_time))
     print ("Choice Size:" + str(len(choice_stock)))

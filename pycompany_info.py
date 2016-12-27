@@ -7,6 +7,8 @@ import pandas as pd
 import os
 from pathlib import Path
 import csv
+import  pyscore
+import traceback
 
 
 class CompanyRevenue:
@@ -97,38 +99,56 @@ def findDateIndex(revenue,  cdate):
             return 0
     return -1
 
-def caculateLastMonthGrowth(stock_id,  company_info,  date_idx):
-    if SysConfig.REVENUE_LAST_MONTH_GROWTH_ENABLE ==0:
-        return 1
+def caculateLastMonthGrowth(stock_id,  company_info,  date_idx,  score):
     d = float(company_info.getItem_Revenue()[date_idx]['last_month_revenue_percent'])
-    return ( d >= SysConfig.REVENUE_LAST_MONTH__GROTH_PERCENT)
+    score.append(['caculateLastMonthGrowth',  
+                          d,  SysConfig.REVENUE_LAST_MONTH__GROTH_PERCENT,  None])
+    ret = (d >= SysConfig.REVENUE_LAST_MONTH__GROTH_PERCENT)
+    if SysConfig.REVENUE_LAST_MONTH_GROWTH_ENABLE ==0:
+        ret = 1
+    return ret
     
-def caculateContinousMonthGrowth(stock_id,  company_info,  date_idx):
-    if SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH <=0:
-        return 1
+def caculateContinousMonthGrowth(stock_id,  company_info,  date_idx,  score):
+    
     revenue = company_info.getItem_Revenue()
     s_idx = date_idx
     e_idx = s_idx + SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH
+    error_count  = 0
     for i in range(s_idx,  e_idx):
         if float(revenue[i]['last_year_revenue_percent']) < SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH_PERCENT:
-            return 0
-    return 1
+            error_count+=1
+            score.append(['caculateContinousMonthGrowth#last_year_revenue_percent',
+                                  float(revenue[i]['last_year_revenue_percent']),  
+                                  SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH_PERCENT,  None])
     
-def caculateContinousGrowth(stock_id,  company_info,  date_idx):
-    if SysConfig.REVENUE_CONTINOUS_RECENT_GROTH <=0:
+    score.append(['caculateContinousMonthGrowth#error_count',
+                          error_count, None,  None])
+    if SysConfig.REVENUE_CONTINOUS_MONTH_GROWTH <=0:
         return 1
+    return (error_count == 0)
+    
+def caculateContinousGrowth(stock_id,  company_info,  date_idx,  score):
     revenue = company_info.getItem_Revenue()
     s_idx = date_idx
     e_idx = s_idx + SysConfig.REVENUE_CONTINOUS_RECENT_GROTH
+    error_count = 0
     for i in range(s_idx,  e_idx):
         if float(revenue[i]['last_month_revenue_percent']) < SysConfig.REVENUE_CONTINOUS_RECENT_GROTH_PERCENT:
-            return 0
-    return 1
+            error_count+=1
+            score.append(['caculateContinousGrowth#last_month_revenue_percent',
+                                  float(revenue[i]['last_month_revenue_percent']),  
+                                  SysConfig.REVENUE_CONTINOUS_RECENT_GROTH_PERCENT,  None])
+                                  
+    score.append(['caculateContinousGrowth#error_count',
+                          error_count, None,  None])
+    if SysConfig.REVENUE_CONTINOUS_RECENT_GROTH <=0:
+        return 1
+    return (error_count == 0)
 
 def caculateCompanyRevenue(companyinfo_manager,  stock_id,  cdate):
     if stock_id not in companyinfo_manager:
         return 1
-        
+    
     company_info = companyinfo_manager[stock_id]
     if len(company_info.getItem_Revenue()) == 0:
         return 1
@@ -136,13 +156,20 @@ def caculateCompanyRevenue(companyinfo_manager,  stock_id,  cdate):
     if  date_idx< 0:
         return 1
         
-    if caculateLastMonthGrowth(stock_id,  company_info,  date_idx) == 0:
-        return 0
-    if caculateContinousMonthGrowth(stock_id,  company_info,  date_idx) == 0:
-        return 0
-    if caculateContinousGrowth(stock_id,  company_info,  date_idx) == 0:
-        return 0
+    score = []
+    flag_m = 1
+    flag_c_m = 1
+    flag_c = 1
+    if caculateLastMonthGrowth(stock_id,  company_info,  date_idx,  score) == 0:
+        flag_m = 0
+    if caculateContinousMonthGrowth(stock_id,  company_info,  date_idx,  score) == 0:
+        flag_c_m = 0
+    if caculateContinousGrowth(stock_id,  company_info,  date_idx,  score) == 0:
+        flag_c = 0
         
+    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    if flag_m == 0 or flag_c_m == 0  or flag_c == 0:
+        return 0
     return 1
 
 def accessCompanyRevenue(stock_id,  info):
@@ -207,9 +234,9 @@ if __name__ == "__main__":
     cdate = date.today().strftime('%Y/%m/%d')
     
     date_idx = findDateIndex(company_info.getItem_Revenue(),  cdate)
-    
-    caculateLastMonthGrowth(stock_id,  company_info,  date_idx)
-    caculateContinousMonthGrowth(stock_id,  company_info,  date_idx) 
-    caculateContinousGrowth(stock_id,  company_info,  date_idx) 
+    score = []
+    caculateLastMonthGrowth(stock_id,  company_info,  date_idx,  score)
+    caculateContinousMonthGrowth(stock_id,  company_info,  date_idx,  score) 
+    caculateContinousGrowth(stock_id,  company_info,  date_idx,  score) 
 
 
