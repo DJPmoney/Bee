@@ -135,7 +135,7 @@ class StockData:
         #print (diff)
         count_diff=(diff<=System.NEAR_AVG_DIFF_PERCENT).sum()
         #print (count_diff)
-        score.append(['calculateNearAvg',  float(count_diff)/during,  System.NEAR_AVG_GRAVITY_PERCENT,  None])
+        score.append(['calculateNearAvg',  float(count_diff)/during,  System.NEAR_AVG_GRAVITY_PERCENT])
         if (float(count_diff)/(during)) >= System.NEAR_AVG_GRAVITY_PERCENT:
             #print ("======calculateNearAvg: True :" + str(float(count_diff)/(during)))
             return 1
@@ -284,11 +284,22 @@ def checkQuantity(quan,  score):
         return 0
     sum_quan = 0
     avg_quan = 0
+    max_quan = 0
+    min_quan  = -1
     for i in range(len(quan)):
         sum_quan+=quan[i]['quan_value']
+        if max_quan<quan[i]['quan_value']:
+            max_quan =quan[i]['quan_value']
+        if min_quan >quan[i]['quan_value'] or min_quan == -1:
+            min_quan = quan[i]['quan_value']
     if len(quan) > 0:
-        avg_quan = float(sum_quan)/len(quan)
-    score.append(['checkQuantity',  avg_quan,  System.QUANTITY_TRANS_AVERAGE,  None])
+        avg_quan = float(sum_quan)/float(len(quan))
+    exceed_times = 0
+    for i in range(len(quan)):
+        if quan[i]['quan_value'] >=avg_quan:
+            exceed_times+=1
+    score.append(['checkQuantity',  avg_quan,  System.QUANTITY_TRANS_AVERAGE , 
+                         max_quan,  min_quan,  exceed_times,  len(quan)])
     if (avg_quan <= System.QUANTITY_TRANS_AVERAGE):
         return 0
         
@@ -315,13 +326,14 @@ def calculateMarkPriceTrend(stock_id,  cdate):
     p = float(stock[start]['finial_price'])
     t = float(stock[start+1]['finial_price'])
     diff = p -t
-    score.append(['calculateMarkPriceTrend#g_flag_market_trend', g_flag_market_trend, None, None])
-    score.append(['calculateMarkPriceTrend#diff', diff, None, None])
-    score.append(['calculateMarkPriceTrend#abs_diff', abs(diff), None, System.MARKET_STOCK_TRENT_PERCENT])
+    score.append(['calculateMarkPriceTrend', g_flag_market_trend, diff,  p,  t,  
+                        System.MARKET_STOCK_TRENT_PERCENT
+                      ])
     pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
     ret = 1
     if (diff < 0):
         ret = (abs(diff) < System.MARKET_STOCK_TRENT_PERCENT)
+                          
     if System.ENABLE_MARKET_TREND == 0:
         return 1
     if g_flag_market_trend == 0:
