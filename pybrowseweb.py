@@ -197,6 +197,8 @@ def checkCsvUpdate():
 def getDateIndex(stock_id,  date):
     s = datetime.strptime(date, "%Y/%m/%d")
     stock = stockdata_manager[stock_id]
+    if stock.getItemCount() == 0:
+        return -1
     for i in range(stock.getItemCount()):
         d = datetime.strptime(stock.getItem(i)['date'], "%Y/%m/%d")
         if s>=d:
@@ -273,6 +275,8 @@ def caculateStockNearAvg(stock_id,  date,  during):
     if stockdata_manager[stock_id].getItemCount() <= 0:
         return 0
     start = getDateIndex(stock_id,  date)
+    if start == -1:
+        return 0
     end = start + during
     score = []
     ret = stockdata_manager[stock_id].calculateNearAvg(start,  end,  score)
@@ -313,6 +317,8 @@ def calculateStockQuantity(stock_id,  date,  during):
     if stockdata_manager[stock_id].getItemCount() <= 0:
         return 0
     start = getDateIndex(stock_id,  date)
+    if start == -1:
+        return 0
     end = start + during
     score = []
     ret = checkQuantity(stockdata_manager[stock_id].calculateQuantity(start,  end),  score)
@@ -323,6 +329,8 @@ def calculateMarkPriceTrend(stock_id,  cdate):
     score = []
     stock = stockdata_manager[stock_id].getStockData()
     start = getDateIndex(stock_id,  cdate)
+    if start == -1:
+        return 0
     p = float(stock[start]['finial_price'])
     t = float(stock[start+1]['finial_price'])
     diff = p -t
