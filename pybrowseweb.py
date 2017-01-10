@@ -185,7 +185,7 @@ def checkCsvUpdate():
     update = ""
     try:
         with open(file_name,  "r") as f :
-            update = f.readline()
+            update = f.readline().strip("\n")
     except:
         return 1
     

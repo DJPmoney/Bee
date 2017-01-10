@@ -45,8 +45,21 @@ class CompanyInfo(CompanyRevenue):
         if len(self.revenue) == 0:
             return 
         file_name = SysConfig.STOCK_COMPANY_FOLDER + "update_info.txt"
-        with open(file_name,  "a") as f:
-            f.write(self.stock_id+":"+self.revenue[0]['date'] + "\n")
+        s = ""
+        flag_s = 0
+        with open(file_name,  "r") as f :
+            for line in f:
+                t =  line.rstrip('\n')
+                if t.find(self.stock_id ) >= 0:
+                    if flag_s  == 0:
+                        flag_s = 1
+                        s+=(self.stock_id+":"+self.revenue[0]['date'] + "\n")
+                else:
+                    s+=line
+        if flag_s == 0:
+            s+=(self.stock_id+":"+self.revenue[0]['date'] + "\n")
+        with open(file_name,  "w") as f:
+            f.write(s)
             
     def checkCsvUpdate(self):
         file_name = SysConfig.STOCK_COMPANY_FOLDER + "update_info.txt"
@@ -59,9 +72,9 @@ class CompanyInfo(CompanyRevenue):
                         c_date = datetime.strptime(date.today().strftime('%Y/%m/01'),  "%Y/%m/%d")
                         c_date = c_date - timedelta(days=20)
                         c_date = datetime.strptime(c_date.strftime('%Y/%m'),  "%Y/%m")
-                        if (s_date > c_date):
-                            return 1
-                        return 0
+                        if (s_date >= c_date):
+                            return 0
+                        return 1
         except:
             return 1
         return 2
