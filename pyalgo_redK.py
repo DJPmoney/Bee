@@ -86,7 +86,7 @@ def caculate_redK_mointor(stock_id,  stock_data,  stock_pandas,  date):
         flag_q_p = 0
     if caculate_reqK_cross(stock_id,  stock_data,  stock_pandas,  d_date,  score) == 0:
         flag_cross = 0
-    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    pyscore.appendFunctionScroe("caculate_redK_mointor", stock_id,  score)
     if flag_q_p == 0 or flag_cross == 0:
         return 0
     

@@ -180,7 +180,7 @@ def caculateCompanyRevenue(companyinfo_manager,  stock_id,  cdate):
     if caculateContinousGrowth(stock_id,  company_info,  date_idx,  score) == 0:
         flag_c = 0
         
-    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    pyscore.appendFunctionScroe("caculateCompanyRevenue", stock_id,  score)
     if flag_m == 0 or flag_c_m == 0  or flag_c == 0:
         return 0
     return 1
@@ -226,11 +226,15 @@ def checkHistoryStock():
     if os.path.isdir(SysConfig.STOCK_COMPANY_FOLDER) == False:
        path = Path(SysConfig.STOCK_COMPANY_FOLDER) 
        path.mkdir(parents=True)
+       
+def setCompanyUpdate(update):
+    global g_company_update
+    g_company_update = update
 
 def accesssCompanyInfo(stock_id):
     info = CompanyInfo(stock_id)
     ret = info.checkCsvUpdate()
-    if ret == 1:
+    if ret == 1 and g_company_update == True:
          if accessCompanyRevenue(stock_id,  info) ==0:
              return None
          info.writeRevenueCSV()

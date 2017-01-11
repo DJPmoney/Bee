@@ -192,7 +192,9 @@ def checkCsvUpdate():
     u_date = datetime.strptime(update, "%Y/%m/%d %H:%M:%S")
     u_date+=timedelta(hours=System.HOURS_CSV_UPDATE)
     n_date = datetime.strptime(datetime.now().strftime('%Y/%m/%d %H:%M:%S'),  '%Y/%m/%d %H:%M:%S')
-    return (n_date>=u_date)
+    ret = (n_date>=u_date)
+    pycompany_info.setCompanyUpdate(ret)
+    return ret
          
 def getDateIndex(stock_id,  date):
     s = datetime.strptime(date, "%Y/%m/%d")
@@ -280,7 +282,7 @@ def caculateStockNearAvg(stock_id,  date,  during):
     end = start + during
     score = []
     ret = stockdata_manager[stock_id].calculateNearAvg(start,  end,  score)
-    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    pyscore.appendFunctionScroe("caculateStockNearAvg", stock_id,  score)
     return ret
 
 def checkQuantity(quan,  score):
@@ -322,7 +324,7 @@ def calculateStockQuantity(stock_id,  date,  during):
     end = start + during
     score = []
     ret = checkQuantity(stockdata_manager[stock_id].calculateQuantity(start,  end),  score)
-    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    pyscore.appendFunctionScroe("calculateStockQuantity", stock_id,  score)
     return ret
 
 def calculateMarkPriceTrend(stock_id,  cdate):
@@ -337,7 +339,7 @@ def calculateMarkPriceTrend(stock_id,  cdate):
     score.append(['calculateMarkPriceTrend', g_flag_market_trend, diff,  p,  t,  
                         System.MARKET_STOCK_TRENT_PERCENT
                       ])
-    pyscore.appendFunctionScroe(traceback.extract_stack(None, 2)[0][2], stock_id,  score)
+    pyscore.appendFunctionScroe("calculateMarkPriceTrend", stock_id,  score)
     ret = 1
     if (diff < 0):
         ret = (abs(diff) < System.MARKET_STOCK_TRENT_PERCENT)
